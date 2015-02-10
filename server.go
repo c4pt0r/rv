@@ -9,12 +9,6 @@ import (
 	log "github.com/ngaut/logging"
 )
 
-var verbose bool = false
-
-func SetVerbose(b bool) {
-	verbose = b
-}
-
 type Matcher interface {
 	match(r *http.Request) http.Handler
 	reload(param interface{})
@@ -31,9 +25,7 @@ func NewServer(configFile string) *Server {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if verbose {
-		log.Info("config file:", cfg)
-	}
+	log.Info("config file:", cfg)
 
 	ret := &Server{
 		matcher:    newDefaultMatcher(cfg),
@@ -50,14 +42,13 @@ func (s *Server) regReloadSignalHandler() {
 	go func() {
 		for {
 			<-c
+			log.Info("catch SIGUSR1, reloading")
 			cfg, err := loadConfig(s.configFile)
 			if err != nil {
 				log.Error(err)
 				continue
 			}
-			if verbose {
-				log.Info("reload config", cfg)
-			}
+			log.Info("reload config", cfg)
 			s.matcher.reload(cfg)
 		}
 	}()
@@ -71,9 +62,8 @@ func (s *Server) onRequest(w http.ResponseWriter, r *http.Request) {
 	}
 	http.NotFound(w, r)
 }
-
 func (s *Server) Serve() {
-	http.HandleFunc("/", s.onRequest)
+	http.HandleFunc("/test", s.onRequest)
 	err := http.ListenAndServe(s.addr, nil)
 	if err != nil {
 		log.Fatal(err)

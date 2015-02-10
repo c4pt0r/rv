@@ -2,4 +2,4 @@ addr = ":8088"
 
 [[vhost]]
 hostname = "test"
-static = "/home/dongxu"
+upstreams = ["http://localhost:8080"]
