@@ -1,0 +1,5 @@
+addr = ":8088"
+
+[[vhost]]
+hostname = "test"
+static = "/home/dongxu"
